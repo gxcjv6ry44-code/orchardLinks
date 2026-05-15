@@ -63,12 +63,58 @@
       color: #111;
       border: 1px solid #d7d7d7;
     }
+    /* ── Password modal ── */
+    .pw-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.4);
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+    .pw-backdrop.open { display: flex; }
+    .pw-box {
+      background: #fff;
+      border-radius: 16px;
+      padding: 24px 20px 20px;
+      width: 300px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.15);
+    }
+    .pw-box h2 { margin: 0 0 6px; font-size: 17px; }
+    .pw-box p  { margin: 0 0 14px; font-size: 13px; color: #555; }
+    .pw-box input {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 11px 12px;
+      border: 1px solid #d7d7d7;
+      border-radius: 10px;
+      font-size: 15px;
+      margin-bottom: 10px;
+    }
+    .pw-box input:focus { outline: none; border-color: #999; }
+    .pw-btn-row { display: flex; gap: 8px; }
+    .pw-btn-row button {
+      flex: 1;
+      padding: 11px;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .pw-btn-row .go  { background: #111; color: #fff; }
+    .pw-btn-row .cancel { background: #f0f0f0; color: #111; }
+    .pw-err { font-size: 12px; color: #c00; margin-top: 6px; display: none; }
   </style>
 </head>
 <body>
 <div class="card">
   <h1>North Ogden Orchard</h1>
   <p class="sub">Tap a button to open the page.</p>
+
+  <div class="section-label">Staff</div>
+  <button class="btn" onclick="openDashboard()">Staff Dashboard</button>
 
   <div class="section-label">Forms</div>
   <a class="btn" href="https://gxcjv6ry44-code.github.io/SerMisAssignments/" target="_blank">Assignments</a>
@@ -84,5 +130,60 @@
   <a class="btn secondary" href="https://www.churchofjesuschrist.org/study/manual/safety-health-and-environmental-manual/04/4-23-motor-vehicle-safety?lang=eng" target="_blank">Driver Safety</a>
   <a class="btn secondary" href="https://www.churchofjesuschrist.org/callings/safety/chainsaw-safety?lang=eng" target="_blank">Chain Saw Safety</a>
 </div>
+
+<!-- Password modal -->
+<div id="pwBackdrop" class="pw-backdrop">
+  <div class="pw-box">
+    <h2>Staff Dashboard</h2>
+    <p>Enter the password to continue.</p>
+    <input id="pwInput" type="password" placeholder="Password" />
+    <div class="pw-btn-row">
+      <button class="go"     onclick="checkPw()">Open</button>
+      <button class="cancel" onclick="closePw()">Cancel</button>
+    </div>
+    <div id="pwErr" class="pw-err">Incorrect password — try again.</div>
+  </div>
+</div>
+
+<script>
+  const PASSWORD    = "z10n";
+  const DASHBOARD   = "https://gxcjv6ry44-code.github.io/dashboard/";
+  const SESSION_KEY = "vdv_auth";
+
+  function openDashboard() {
+    if (sessionStorage.getItem(SESSION_KEY) === "1") {
+      window.open(DASHBOARD, "_blank");
+      return;
+    }
+    document.getElementById("pwInput").value = "";
+    document.getElementById("pwErr").style.display = "none";
+    document.getElementById("pwBackdrop").classList.add("open");
+    setTimeout(() => document.getElementById("pwInput").focus(), 50);
+  }
+
+  function closePw() {
+    document.getElementById("pwBackdrop").classList.remove("open");
+  }
+
+  function checkPw() {
+    if (document.getElementById("pwInput").value === PASSWORD) {
+      sessionStorage.setItem(SESSION_KEY, "1");
+      closePw();
+      window.open(DASHBOARD, "_blank");
+    } else {
+      document.getElementById("pwErr").style.display = "block";
+      document.getElementById("pwInput").select();
+    }
+  }
+
+  document.getElementById("pwInput").addEventListener("keydown", e => {
+    if (e.key === "Enter")  checkPw();
+    if (e.key === "Escape") closePw();
+  });
+
+  document.getElementById("pwBackdrop").addEventListener("click", e => {
+    if (e.target === document.getElementById("pwBackdrop")) closePw();
+  });
+</script>
 </body>
 </html>
